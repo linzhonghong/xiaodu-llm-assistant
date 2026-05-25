@@ -27,3 +27,4 @@ services:
 
 volumes:
   xiaodu-data:
+    driver: local
