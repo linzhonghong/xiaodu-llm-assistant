@@ -22,11 +22,23 @@ pnpm dev
 Docker Compose 启动：
 
 ```bash
-cp .env.example .env
+cp xiaodu.env.example xiaodu.env
 docker compose up --build
 ```
 
 服务默认监听 `http://localhost:3000`，健康检查地址是 `GET /health`。
+
+## 群晖 DSM Container Manager 部署
+
+DSM 的 Container Manager 不一定有 `--env-file` 参数入口，所以本项目把运行环境文件写在 `docker-compose.yml` 的 `env_file` 里。部署时按下面做：
+
+1. 在服务器目录里放入项目文件。
+2. 复制 `xiaodu.env.example` 为 `xiaodu.env`。
+3. 编辑 `xiaodu.env`，填入真实的 `PUBLIC_BASE_URL`、`LLM_API_KEY`，以及需要时的 Home Assistant 配置。
+4. 在 DSM Container Manager 里新建 Project，选择项目目录和 `docker-compose.yml`。
+5. 启动 Project。
+
+`xiaodu.env` 不要提交到 Git，也不要复制进镜像。`docker-compose.yml` 会在容器启动时通过 `env_file: ./xiaodu.env` 注入这些变量。容器内数据库路径固定为 `/app/data/app.db`，宿主机数据目录是项目下的 `./data`。
 
 ## 环境变量
 

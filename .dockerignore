@@ -3,6 +3,7 @@ dist
 data/*.db
 data/*.db-*
 .env
+xiaodu.env
 .git
 .DS_Store
 npm-debug.log

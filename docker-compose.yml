@@ -4,25 +4,14 @@ services:
     container_name: xiaodu-llm-assistant
     restart: unless-stopped
     ports:
-      - "${PORT:-3000}:3000"
+      - "3000:3000"
+    env_file:
+      - ./xiaodu.env
     environment:
       PORT: 3000
       HOST: 0.0.0.0
       NODE_ENV: production
-      PUBLIC_BASE_URL: ${PUBLIC_BASE_URL:-https://xiaodu.example.com}
-      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.openai.com/v1}
-      LLM_API_KEY: ${LLM_API_KEY:-sk-xxxx}
-      LLM_MODEL: ${LLM_MODEL:-gpt-4.1-mini}
-      LLM_TIMEOUT_MS: ${LLM_TIMEOUT_MS:-30000}
       DB_PATH: /app/data/app.db
-      MAX_HISTORY_MESSAGES: ${MAX_HISTORY_MESSAGES:-12}
-      MAX_REPLY_CHARS: ${MAX_REPLY_CHARS:-120}
-      DUEROS_VERIFY_SIGNATURE: ${DUEROS_VERIFY_SIGNATURE:-true}
-      HA_ENABLED: ${HA_ENABLED:-false}
-      HA_BASE_URL: ${HA_BASE_URL:-http://192.168.1.10:8123}
-      HA_TOKEN: ${HA_TOKEN:-}
-      HA_TIMEOUT_MS: ${HA_TIMEOUT_MS:-10000}
-      LOG_LEVEL: ${LOG_LEVEL:-info}
     volumes:
       - ./data:/app/data
     healthcheck:

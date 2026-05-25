@@ -410,11 +410,13 @@ describe('project deliverables', () => {
 
     const compose = readFileSync('docker-compose.yml', 'utf8');
     expect(compose).toContain('build: .');
-    expect(compose).toContain('"${PORT:-3000}:3000"');
-    expect(compose).toContain('LLM_API_KEY: ${LLM_API_KEY:-sk-xxxx}');
+    expect(compose).toContain('"3000:3000"');
+    expect(compose).toContain('env_file:');
+    expect(compose).toContain('./xiaodu.env');
     expect(compose).toContain('DB_PATH: /app/data/app.db');
     expect(compose).toContain('./data:/app/data');
     expect(compose).toContain('healthcheck:');
+    expect(readFileSync('xiaodu.env.example', 'utf8')).toContain('LLM_API_KEY=sk-xxxx');
 
     const readme = readFileSync('README.md', 'utf8');
     expect(readme).toContain('启动方法');
