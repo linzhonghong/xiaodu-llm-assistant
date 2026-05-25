@@ -416,7 +416,8 @@ describe('project deliverables', () => {
     expect(compose).toContain('env_file:');
     expect(compose).toContain('./xiaodu.env');
     expect(compose).toContain('DB_PATH: /app/data/app.db');
-    expect(compose).toContain('./data:/app/data');
+    expect(compose).toContain('xiaodu-data:/app/data');
+    expect(compose).toContain('xiaodu-data:');
     expect(compose).toContain('healthcheck:');
     expect(readFileSync('xiaodu.env.example', 'utf8')).toContain('LLM_API_KEY=sk-xxxx');
 
