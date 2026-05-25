@@ -404,9 +404,11 @@ describe('project deliverables', () => {
     expect(dockerfile).toContain('FROM node:20-bookworm-slim AS build');
     expect(dockerfile).toContain('corepack enable');
     expect(dockerfile).toContain('python3 make g++');
+    expect(dockerfile).toContain('gosu');
     expect(dockerfile).toContain('pnpm install --frozen-lockfile');
     expect(dockerfile).toContain('pnpm build');
-    expect(dockerfile).toContain('CMD ["node", "dist/index.js"]');
+    expect(dockerfile).toContain('docker-entrypoint.sh');
+    expect(readFileSync('docker-entrypoint.sh', 'utf8')).toContain('chown -R node:node /app/data');
 
     const compose = readFileSync('docker-compose.yml', 'utf8');
     expect(compose).toContain('build: .');
