@@ -8,6 +8,12 @@ export type DuerOsIntent = {
   slots?: Record<string, DuerOsSlot | undefined>;
 };
 
+export type DuerOsQuery = {
+  type?: string;
+  original?: string;
+  rewritten?: string;
+};
+
 export type DuerOsRequestEnvelope = {
   version?: string;
   session?: {
@@ -39,6 +45,8 @@ export type DuerOsRequestEnvelope = {
     requestId?: string;
     timestamp?: string;
     intent?: DuerOsIntent;
+    intents?: DuerOsIntent[];
+    query?: DuerOsQuery;
     reason?: string;
   };
 };

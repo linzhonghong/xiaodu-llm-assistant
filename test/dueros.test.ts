@@ -210,6 +210,39 @@ describe('DuerOS webhook', () => {
     expect(response.json().response.outputSpeech.text).toBe('我这边暂时有点忙，稍后再试一下。');
   });
 
+  test('default intent uses request query text when no slots are present', async () => {
+    const fetchMock = vi.fn(async () => new Response(JSON.stringify({
+      choices: [{ message: { content: '你好，我在。' } }]
+    }), { status: 200, headers: { 'content-type': 'application/json' } }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const app = await buildApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/dueros',
+      payload: request('IntentRequest', {
+        query: {
+          type: 'TEXT',
+          original: '你好',
+          rewritten: '你好'
+        },
+        intents: [
+          {
+            name: 'ai.dueros.common.default_intent',
+            score: 100,
+            confirmationStatus: 'NONE',
+            slots: {}
+          }
+        ]
+      })
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().response.outputSpeech.text).toBe('你好，我在。');
+    const llmBody = JSON.parse(fetchMock.mock.calls[0][1].body as string);
+    expect(llmBody.messages.at(-1)).toEqual({ role: 'user', content: '你好' });
+  });
+
   test('HA disabled does not call Home Assistant for device commands', async () => {
     const fetchMock = vi.fn(async () => new Response(JSON.stringify({
       choices: [{ message: { content: '已收到' } }]
@@ -309,6 +342,23 @@ describe('DuerOS webhook', () => {
     vi.stubEnv('DUEROS_VERIFY_SIGNATURE', 'true');
     vi.stubGlobal('fetch', vi.fn(async () => new Response(testDuerOsCert, { status: 200 })));
     const rawBody = JSON.stringify(request('LaunchRequest'));
+
+    const app = await buildApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/dueros',
+      headers: signedHeaders(rawBody),
+      payload: rawBody
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().response.outputSpeech.text).toBe('我在，想问什么？');
+  });
+
+  test('accepts signed DuerOS requests with unix second timestamps', async () => {
+    vi.stubEnv('DUEROS_VERIFY_SIGNATURE', 'true');
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(testDuerOsCert, { status: 200 })));
+    const rawBody = JSON.stringify(request('LaunchRequest', { timestamp: Math.floor(Date.now() / 1000).toString() }));
 
     const app = await buildApp();
     const response = await app.inject({

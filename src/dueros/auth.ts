@@ -6,6 +6,7 @@ const allowedCertHost = 'duer.bdstatic.com';
 const allowedCertPathPrefix = '/saiya/flow/';
 const requiredSubjectAltName = 'DNS:dueros-api.baidu.com';
 const maxTimestampSkewMs = 180_000;
+const unixTimestampPattern = /^\d+$/;
 
 export class DuerOsAuthError extends Error {}
 
@@ -62,7 +63,9 @@ function assertFreshTimestamp(body: DuerOsRequestEnvelope, now = Date.now()): vo
     throw new DuerOsAuthError('Missing DuerOS request timestamp');
   }
 
-  const timestampMs = Date.parse(timestamp);
+  const timestampMs = unixTimestampPattern.test(timestamp)
+    ? Number(timestamp) * (timestamp.length <= 10 ? 1000 : 1)
+    : Date.parse(timestamp);
   if (!Number.isFinite(timestampMs)) {
     throw new DuerOsAuthError('Invalid DuerOS request timestamp');
   }
