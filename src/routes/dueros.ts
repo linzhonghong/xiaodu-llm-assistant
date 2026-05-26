@@ -1,4 +1,5 @@
 import type { FastifyInstance } from 'fastify';
+import type { IncomingHttpHeaders } from 'node:http';
 import type { AppConfig } from '../config.js';
 import type { AppDatabase } from '../memory/db.js';
 import { createConversationStore } from '../memory/conversation.js';
@@ -13,6 +14,23 @@ import { createHomeAssistantClient } from '../ha/client.js';
 import { executeHaIntent, executePendingConfirmation, parseHomeAssistantIntent } from '../ha/intent.js';
 import { isConfirmationQuery, isRejectionQuery } from '../safety/confirm.js';
 import { getErrorMessage } from '../utils/errors.js';
+import type { DuerOsRequestEnvelope } from '../dueros/types.js';
+
+function hasHeader(value: string | string[] | undefined): boolean {
+  return Array.isArray(value) ? value.length > 0 && Boolean(value[0]) : Boolean(value);
+}
+
+function duerosAuthDiagnostics(headers: IncomingHttpHeaders, rawBody: string, body: DuerOsRequestEnvelope) {
+  const timestamp = body.request?.timestamp;
+  return {
+    requestType: body.request?.type ?? null,
+    timestamp: timestamp ?? null,
+    timestampType: typeof timestamp,
+    hasSignatureCertUrl: hasHeader(headers.signaturecerturl),
+    hasSignature: hasHeader(headers.signature),
+    rawBodyLength: rawBody.length
+  };
+}
 
 export async function registerDuerOsRoute(app: FastifyInstance, config: AppConfig, db: AppDatabase) {
   const conversation = createConversationStore(db, config.MAX_HISTORY_MESSAGES);
@@ -21,13 +39,20 @@ export async function registerDuerOsRoute(app: FastifyInstance, config: AppConfi
   const duerosSignature = createDuerOsSignatureVerifier();
 
   app.post('/dueros', async (request, reply) => {
-    const body = request.body as never;
+    const body = request.body as DuerOsRequestEnvelope;
+    const rawBody = request.rawBody ?? '';
     if (config.DUEROS_VERIFY_SIGNATURE) {
       try {
-        await duerosSignature.verify(request.headers, request.rawBody ?? '', body);
+        await duerosSignature.verify(request.headers, rawBody, body);
       } catch (error) {
         if (error instanceof DuerOsAuthError) {
-          request.log.warn({ error: error.message }, 'DuerOS signature verification failed');
+          request.log.warn(
+            {
+              error: error.message,
+              dueros: duerosAuthDiagnostics(request.headers, rawBody, body)
+            },
+            'DuerOS signature verification failed'
+          );
           return reply.status(401).send({ error: 'Invalid DuerOS signature' });
         }
         throw error;
