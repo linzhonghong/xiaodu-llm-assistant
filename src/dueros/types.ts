@@ -43,7 +43,7 @@ export type DuerOsRequestEnvelope = {
   request?: {
     type?: 'LaunchRequest' | 'IntentRequest' | 'SessionEndedRequest' | string;
     requestId?: string;
-    timestamp?: string;
+    timestamp?: string | number;
     intent?: DuerOsIntent;
     intents?: DuerOsIntent[];
     query?: DuerOsQuery;

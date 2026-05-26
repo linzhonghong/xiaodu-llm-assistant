@@ -372,6 +372,23 @@ describe('DuerOS webhook', () => {
     expect(response.json().response.outputSpeech.text).toBe('我在，想问什么？');
   });
 
+  test('accepts signed DuerOS requests with decimal unix second timestamps', async () => {
+    vi.stubEnv('DUEROS_VERIFY_SIGNATURE', 'true');
+    vi.stubGlobal('fetch', vi.fn(async () => new Response(testDuerOsCert, { status: 200 })));
+    const rawBody = JSON.stringify(request('LaunchRequest', { timestamp: (Date.now() / 1000).toString() }));
+
+    const app = await buildApp();
+    const response = await app.inject({
+      method: 'POST',
+      url: '/dueros',
+      headers: signedHeaders(rawBody),
+      payload: rawBody
+    });
+
+    expect(response.statusCode).toBe(200);
+    expect(response.json().response.outputSpeech.text).toBe('我在，想问什么？');
+  });
+
   test('rejects stale signed DuerOS requests', async () => {
     vi.stubEnv('DUEROS_VERIFY_SIGNATURE', 'true');
     vi.stubGlobal('fetch', vi.fn(async () => new Response(testDuerOsCert, { status: 200 })));
