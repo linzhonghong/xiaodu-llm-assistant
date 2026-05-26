@@ -17,6 +17,7 @@ export function speechResponse(text: string, shouldEndSession = false, reprompt 
           text: reprompt
         }
       },
+      expectSpeech: !shouldEndSession,
       shouldEndSession
     }
   };
@@ -29,6 +30,7 @@ export function endedResponse(): DuerOsResponse {
       attributes: {}
     },
     response: {
+      expectSpeech: false,
       shouldEndSession: true
     }
   };

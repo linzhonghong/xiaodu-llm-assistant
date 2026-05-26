@@ -144,6 +144,7 @@ describe('DuerOS webhook', () => {
     expect(response.statusCode).toBe(200);
     expect(response.json().response.outputSpeech.text).toBe('我在，想问什么？');
     expect(response.json().response.shouldEndSession).toBe(false);
+    expect(response.json().response.expectSpeech).toBe(true);
   });
 
   test('exit intent ends the session', async () => {
@@ -156,6 +157,7 @@ describe('DuerOS webhook', () => {
 
     expect(response.json().response.outputSpeech.text).toBe('好的，再见。');
     expect(response.json().response.shouldEndSession).toBe(true);
+    expect(response.json().response.expectSpeech).toBe(false);
   });
 
   test('help intent returns voice help text', async () => {

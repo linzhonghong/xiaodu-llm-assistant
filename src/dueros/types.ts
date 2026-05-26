@@ -79,6 +79,7 @@ export type DuerOsResponse = {
         text: string;
       };
     };
+    expectSpeech: boolean;
     shouldEndSession: boolean;
   };
 };
