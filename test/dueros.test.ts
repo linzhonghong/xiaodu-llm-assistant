@@ -478,7 +478,10 @@ describe('project deliverables', () => {
     expect(readFileSync('docker-entrypoint.sh', 'utf8')).toContain('chown -R node:node /app/data');
 
     const compose = readFileSync('docker-compose.yml', 'utf8');
-    expect(compose).toContain('build: .');
+    expect(compose).toContain('image: xiaodu-llm-assistant:latest');
+    expect(compose).toContain('build:');
+    expect(compose).toContain('context: .');
+    expect(compose).toContain('pull: true');
     expect(compose).toContain('"3000:3000"');
     expect(compose).toContain('env_file:');
     expect(compose).toContain('./xiaodu.env');

@@ -1,6 +1,9 @@
 services:
   xiaodu-llm-assistant:
-    build: .
+    image: xiaodu-llm-assistant:latest
+    build:
+      context: .
+      pull: true
     container_name: xiaodu-llm-assistant
     restart: unless-stopped
     ports:
