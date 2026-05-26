@@ -3,11 +3,11 @@ services:
     image: xiaodu-llm-assistant:latest
     build:
       context: .
-      pull: true
+    pull_policy: build
     container_name: xiaodu-llm-assistant
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - "3030:3000"
     env_file:
       - ./xiaodu.env
     environment:

@@ -481,8 +481,8 @@ describe('project deliverables', () => {
     expect(compose).toContain('image: xiaodu-llm-assistant:latest');
     expect(compose).toContain('build:');
     expect(compose).toContain('context: .');
-    expect(compose).toContain('pull: true');
-    expect(compose).toContain('"3000:3000"');
+    expect(compose).toContain('pull_policy: build');
+    expect(compose).toContain('"3030:3000"');
     expect(compose).toContain('env_file:');
     expect(compose).toContain('./xiaodu.env');
     expect(compose).toContain('DB_PATH: /app/data/app.db');
